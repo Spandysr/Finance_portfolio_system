@@ -8,7 +8,7 @@ from PIL import Image, ImageTk
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': '',  # Change this to your actual password
+    'password': 'suma',  # Change this to your actual password
     'database': 'finance_portfolio_db'
 }
 
@@ -75,7 +75,7 @@ def open_portfolio_page():
     window = Toplevel()
     create_form(window, "Portfolio Management",
                 ["PortfolioID", "InvestorID", "AssetID"], "Portfolio",
-                "images/portfolio_bg.jpg")
+                "images/portfolio.jpg")
 
 def open_investment_page():
     window = Toplevel()
