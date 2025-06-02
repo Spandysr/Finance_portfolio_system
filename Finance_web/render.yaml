@@ -2,6 +2,9 @@ services:
   - type: web
     name: finance-portfolio-app
     env: python
-    buildCommand: ""
-    startCommand: gunicorn finance_web_app:app
+    buildCommand: pip install -r Finance_web/requirements.txt
+    startCommand: gunicorn Finance_web.finance_web:app
+    envVars:
+      - key: FLASK_ENV
+        value: development
 
