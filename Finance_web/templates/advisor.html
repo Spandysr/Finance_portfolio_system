@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Investment Advisor</title>
+    <style>
+        body {
+            background: url("/static/finance_bg.jpg") no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+        }
+        .advisor-container {
+            max-width: 500px;
+            margin: 80px auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 10px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #ffc107;
+            color: black;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+        }
+        button:hover {
+            background: #e0a800;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+<div class="advisor-container">
+    <h2>Advisor: Get Investment Advice</h2>
+    <form method="post" action="/advisor">
+        <input type="number" step="0.01" name="amount" placeholder="Enter amount to invest" required>
+        <button type="submit">Get Advice</button>
+    </form>
+    {% if suggestion %}
+    <pre>{{ suggestion }}</pre>
+    {% endif %}
+</div>
+</body>
+</html>
+

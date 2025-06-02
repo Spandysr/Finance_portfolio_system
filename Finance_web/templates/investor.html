@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Investor - Finance Portfolio</title>
+    <style>
+        body {
+            background: url("/static/finance_bg.jpg") no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: 80px auto;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 10px;
+        }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #28a745;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .flash-message {
+            color: red;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2>Add Investor</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-message">
+            {% for category, message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+    <form method="post" action="/investor">
+        <input type="text" name="InvestorID" placeholder="Investor ID" required>
+        <input type="text" name="Name" placeholder="Full Name" required>
+        <input type="email" name="Email" placeholder="Email (must end with .com)" required>
+        <button type="submit">Add Investor</button>
+    </form>
+</div>
+</body>
+</html>
+

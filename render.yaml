@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: finance-portfolio-app
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn finance_web_app:app
+
