@@ -2,6 +2,17 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import mysql.connector
 import re
 import random
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Load environment variables from .env
+
+db = mysql.connector.connect(
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_NAME")
+)
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
@@ -10,7 +21,7 @@ app.secret_key = 'super_secret_key'
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'suma',
+    'password': '',
     'database': 'finance_portfolio_db'
 }
 
