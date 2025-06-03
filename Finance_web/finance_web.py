@@ -6,6 +6,13 @@ import random
 import os
 from dotenv import load_dotenv
 
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="suma",
+    database="finance_portfolio_db"
+)
+
 load_dotenv()
 
 # Flask App
@@ -59,6 +66,33 @@ def login():
                 cursor.close()
                 conn.close()
     return render_template('login.html')
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    error = None
+    message = None
+
+    if request.method == 'POST':
+        investor_id = request.form['investor_id']
+        name = request.form['name']
+        email = request.form['email']
+
+        # Validate email format
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            error = "Invalid email format. Please use example@domain.com."
+        else:
+            cursor = db.cursor()
+            # Check if ID already exists
+            cursor.execute("SELECT * FROM Investor WHERE InvestorID = %s", (investor_id,))
+            if cursor.fetchone():
+                error = "Investor ID already exists!"
+            else:
+                cursor.execute("INSERT INTO Investor (InvestorID, Name, Email) VALUES (%s, %s, %s)",
+                               (investor_id, name, email))
+                db.commit()
+                message = "Registration successful! You can now login."
+
+    return render_template("signup.html", error=error, message=message)
 
 @app.route('/investor', methods=['GET', 'POST'])
 def investor():
