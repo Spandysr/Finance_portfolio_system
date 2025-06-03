@@ -1,29 +1,30 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import mysql.connector
+from datetime import date
 import re
 import random
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
 
-load_dotenv()  # Load environment variables from .env
+load_dotenv()
 
-db = mysql.connector.connect(
-    host=os.getenv("DB_HOST"),
-    user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD"),
-    database=os.getenv("DB_NAME")
-)
-
+# Flask App
 app = Flask(__name__)
 app.secret_key = 'super_secret_key'
 
-# Configure MySQL database connection
+# MySQL DB config from environment variables
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '',
-    'database': 'finance_portfolio_db'
+    'host': os.getenv("DB_HOST"),
+    'user': os.getenv("DB_USER"),
+    'password': os.getenv("DB_PASSWORD"),
+    'database': os.getenv("DB_NAME")
 }
+
+# Connect to DB
+def connect_db():
+    return mysql.connector.connect(**db_config)
+
+# --- Routes ---
 
 @app.route('/')
 def index():
@@ -39,8 +40,9 @@ def login():
         if not re.match(r"^[\w\.-]+@[\w\.-]+\.com$", email):
             flash("Invalid email format")
             return redirect(url_for('login'))
+
         try:
-            conn = mysql.connector.connect(**db_config)
+            conn = connect_db()
             cursor = conn.cursor(dictionary=True)
             cursor.execute("SELECT * FROM Investor WHERE Email=%s AND InvestorID=%s", (email, password))
             user = cursor.fetchone()
@@ -65,7 +67,7 @@ def investor():
         name = request.form['Name']
         email = request.form['Email']
         try:
-            conn = mysql.connector.connect(**db_config)
+            conn = connect_db()
             cursor = conn.cursor()
             cursor.execute("INSERT INTO Investor (InvestorID, Name, Email) VALUES (%s, %s, %s)", (investor_id, name, email))
             conn.commit()
@@ -98,6 +100,51 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+# --- Backend Helper Functions ---
+
+def add_investor(name, email):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO Investor (Name, Email) VALUES (%s, %s)", (name, email))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def add_asset(asset_type, name):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO Asset (AssetType, Name) VALUES (%s, %s)", (asset_type, name))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def create_portfolio(investor_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO Portfolio (InvestorID, CreatedDate) VALUES (%s, %s)", (investor_id, date.today()))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def add_investment(portfolio_id, asset_id, amount):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO Investment (PortfolioID, AssetID, AmountInvested, DateOfInvestment) VALUES (%s, %s, %s, %s)",
+                   (portfolio_id, asset_id, amount, date.today()))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def add_transaction(investment_id, txn_type, amount):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO Transaction (InvestmentID, TransactionType, TransactionDate, Amount) VALUES (%s, %s, %s, %s)",
+                   (investment_id, txn_type, date.today(), amount))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+# --- Run locally ---
 if __name__ == '__main__':
     app.run(debug=True)
 
