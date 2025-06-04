@@ -92,8 +92,63 @@ def signup():
 def dashboard():
     if 'user' not in session:
         return redirect(url_for('login'))
-    word, thought = get_daily_items()
-    return render_template('dashboard.html', user=session['user'], word=word, thought=thought)
+
+    word = get_word_of_the_day()
+    thought = get_thought_of_the_day()
+    user_name = session['user']
+
+    try:
+        conn = connect_db()
+        cursor = conn.cursor(dictionary=True)
+
+        # Get InvestorID of the logged-in user
+        cursor.execute("SELECT InvestorID FROM Investor WHERE Name = %s", (user_name,))
+        investor = cursor.fetchone()
+        if not investor:
+            flash("Investor not found", "danger")
+            return redirect(url_for('login'))
+
+        investor_id = investor['InvestorID']
+
+        # Get PortfolioID(s) for the investor
+        cursor.execute("SELECT PortfolioID FROM Portfolio WHERE InvestorID = %s", (investor_id,))
+        portfolios = cursor.fetchall()
+        portfolio_ids = [p['PortfolioID'] for p in portfolios]
+
+        if not portfolio_ids:
+            flash("No portfolio found for the user", "warning")
+            chart_labels, chart_values = [], []
+        else:
+            # Fetch total investment per asset type
+            format_ids = ','.join(['%s'] * len(portfolio_ids))
+            query = f"""
+                SELECT a.AssetType, SUM(i.AmountInvested) AS Total
+                FROM Investment i
+                JOIN Asset a ON i.AssetID = a.AssetID
+                WHERE i.PortfolioID IN ({format_ids})
+                GROUP BY a.AssetType
+            """
+            cursor.execute(query, tuple(portfolio_ids))
+            results = cursor.fetchall()
+
+            chart_labels = [row['AssetType'] for row in results]
+            chart_values = [row['Total'] for row in results]
+
+    except Exception as e:
+        flash(f"Error fetching chart data: {e}", "danger")
+        chart_labels, chart_values = [], []
+
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+    return render_template('dashboard.html',
+                           user=user_name,
+                           word=word,
+                           thought=thought,
+                           chart_labels=chart_labels,
+                           chart_values=chart_values)
 
 @app.route('/advisor', methods=['GET', 'POST'])
 def advisor():
