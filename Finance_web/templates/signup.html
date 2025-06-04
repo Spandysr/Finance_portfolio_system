@@ -1,57 +1,58 @@
+<!-- templates/signup.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Sign Up</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body {
-            background-image: url('/static/finance_bg.jpg');
+            background-image: url('/static/images/signup_bg.jpg');
             background-size: cover;
-            font-family: Arial, sans-serif;
-            color: white;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
-        .container {
-            background-color: rgba(0,0,0,0.6);
-            padding: 20px;
-            width: 300px;
-            margin: 100px auto;
+        .signup-box {
+            background-color: rgba(255,255,255,0.9);
+            padding: 30px;
             border-radius: 10px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 5px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: teal;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        a {
-            color: lightblue;
+            margin-top: 10%;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+<div class="container col-md-4 offset-md-4">
+    <div class="signup-box">
         <h2>Sign Up</h2>
-        {% if error %}
-            <p style="color:red;">{{ error }}</p>
-        {% endif %}
-        {% if message %}
-            <p style="color:lightgreen;">{{ message }}</p>
-        {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
         <form method="POST">
-            <input type="text" name="investor_id" placeholder="Investor ID" required><br>
-            <input type="text" name="name" placeholder="Full Name" required><br>
-            <input type="email" name="email" placeholder="Email" required><br>
-            <button type="submit">Register</button>
+            <div class="mb-3">
+                <label>Investor ID:</label>
+                <input type="text" name="investor_id" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Name:</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Email:</label>
+                <input type="email" name="email" class="form-control" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" required>
+            </div>
+            <div class="mb-3">
+                <label>Password:</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success">Register</button>
+            <a href="/login" class="btn btn-link">Already have an account?</a>
         </form>
-        <p>Already have an account? <a href="/login">Login here</a></p>
     </div>
+</div>
 </body>
 </html>
 

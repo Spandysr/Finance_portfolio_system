@@ -1,58 +1,79 @@
+<!-- templates/dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            background-image: url('/static/images/bg.jpg');
+            background-image: url('/static/images/dashboard_bg.jpg');
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            color: white;
-            font-family: Arial, sans-serif;
+            color: #fff;
         }
-        .dashboard-container {
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 40px;
-            margin-top: 60px;
-            border-radius: 15px;
-            text-align: center;
-            width: 80%;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 5%;
         }
-        h2, h4 {
-            margin-bottom: 20px;
-        }
-        .btn-group a {
-            margin: 8px;
+        .dashboard-btn {
+            margin: 10px;
         }
     </style>
 </head>
 <body>
+<div class="container text-center">
+    <div class="overlay">
+        <h2>Welcome, {{ user }}</h2>
+        <p><strong>Financial Tip of the Day:</strong> {{ tip }}</p>
+        <p><strong>Word of the Day:</strong> {{ word }} - {{ meaning }}</p>
 
-    <div class="dashboard-container">
-        <h2>Welcome, {{ user.Name }}</h2>
-        <p>Investor ID: {{ user.InvestorID }} | Email: {{ user.Email }}</p>
-
-        <h4>💡 Financial Thought of the Day: <em>{{ thought }}</em></h4>
-        <h4>🧠 Word of the Day: <em>{{ word }}</em></h4>
-
-        <div class="btn-group d-flex flex-wrap justify-content-center">
-            <a href="{{ url_for('investor') }}" class="btn btn-outline-light">Investor</a>
-            <a href="{{ url_for('asset') }}" class="btn btn-outline-light">Asset</a>
-            <a href="{{ url_for('portfolio') }}" class="btn btn-outline-light">Portfolio</a>
-            <a href="{{ url_for('investment') }}" class="btn btn-outline-light">Investment</a>
-            <a href="{{ url_for('transaction') }}" class="btn btn-outline-light">Transaction</a>
-            <a href="{{ url_for('advisor') }}" class="btn btn-outline-light">Investment Advisor</a>
-            <a href="{{ url_for('goals') }}" class="btn btn-outline-light">Financial Goals</a>
-            <a href="{{ url_for('logout') }}" class="btn btn-warning">Logout</a>
+        <div class="row">
+            <div class="col">
+                <a href="/advisor" class="btn btn-outline-warning dashboard-btn">Investment Advisor</a>
+                <a href="/investor" class="btn btn-outline-light dashboard-btn">Investor Profile</a>
+                <a href="/portfolio" class="btn btn-outline-success dashboard-btn">Portfolio</a>
+                <a href="/investment" class="btn btn-outline-info dashboard-btn">Investments</a>
+                <a href="/transaction" class="btn btn-outline-primary dashboard-btn">Transactions</a>
+            </div>
         </div>
-    </div>
 
+        <div class="mt-5">
+            <h4>Asset Type Distribution</h4>
+            <canvas id="assetChart" width="400" height="200"></canvas>
+        </div>
+        <a href="/logout" class="btn btn-danger mt-4">Logout</a>
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('assetChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: {{ chart_labels|tojson }},
+            datasets: [{
+                label: 'Assets',
+                data: {{ chart_values|tojson }},
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(153, 102, 255, 0.6)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>
 </body>
 </html>
 
