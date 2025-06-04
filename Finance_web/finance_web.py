@@ -26,7 +26,19 @@ db_config = {
     'password': os.getenv("DB_PASSWORD"),
     'database': os.getenv("DB_NAME")
 }
+tips = [
+    "Invest regularly to benefit from compounding.",
+    "Diversify your portfolio to manage risk.",
+    "Review your goals periodically.",
+    "Keep emergency funds separately.",
+]
 
+words = [
+    ("Asset", "A resource with economic value."),
+    ("Equity", "Ownership in a company."),
+    ("Inflation", "Rate at which prices increase."),
+    ("Portfolio", "Collection of financial assets."),
+]
 # Connect to DB
 def connect_db():
     return mysql.connector.connect(**db_config)
@@ -36,9 +48,6 @@ def connect_db():
 def home():
     return render_template('home.html')
 
-@app.route('/dashboard')
-def dashboard():
-    return render_template('dashboard.html')
 
 @app.route('/about')
 def about():
@@ -59,6 +68,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    error= None
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -74,7 +84,7 @@ def login():
             if user:
                 session['user'] = user['Name']
                 flash("Logged in successfully!", "success")
-                return redirect(url_for('index'))
+                return redirect(url_for('dashboard'))
             else:
                 flash("Login failed: Invalid credentials", "danger")
         except Exception as e:
@@ -83,7 +93,27 @@ def login():
             if conn.is_connected():
                 cursor.close()
                 conn.close()
-    return render_template('login.html')
+    return render_template('login.html',error= error)
+
+
+@app.route('/dashboard')
+def dashboard():
+    @app.route('/dashboard')
+def dashboard():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    index = datetime.datetime.now().day % len(tips)
+    today_tip = tips[index]
+    today_word, meaning = words[index]
+    return render_template('dashboard.html', tip=today_tip, word=today_word, meaning=meaning)
+
+    user = session['user']
+    today = datetime.date.today()
+    word_of_the_day = ["Discipline", "Growth", "Yield", "Dividend"][today.day % 4]
+    thought = ["Invest early", "Diversify always", "Know your risk", "Track regularly"][today.day % 4]
+
+    return render_template('dashboard.html', user=user, word=word_of_the_day, thought=thought)
+
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -153,6 +183,7 @@ def logout():
     return redirect(url_for('login'))
 
 # --- Backend Helper Functions ---
+
 
 def add_investor(name, email):
     conn = connect_db()
